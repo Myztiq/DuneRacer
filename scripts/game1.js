@@ -82,7 +82,7 @@ function webGLStart(){
 function setupGround(scene,physics){
     var material = new CubicVR.Material({
         textures: {
-            color: "scripts/cubicvr/samples/images/6583-diffuse.jpg"
+            color: "/cubicvr/samples/images/6583-diffuse.jpg"
         }
     });
 
@@ -122,7 +122,7 @@ function setupGround(scene,physics){
 function setupJump(scene,physics){
     var material = new CubicVR.Material({
         textures: {
-            color: "scripts/cubicvr/samples/images/6583-diffuse.jpg"
+            color: "/cubicvr/samples/images/6583-diffuse.jpg"
         }
     });
 

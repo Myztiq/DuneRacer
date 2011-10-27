@@ -32,7 +32,8 @@ function webGLStart(){
 
     ground = setupGround(scene,physics);
     jump = setupJump(scene,physics);
-    car = setup3dCar(scene,physics);
+//    car = setup3dCar(scene,physics);
+    car = addCarAndPhysics(scene,physics);
 //    generateGround(scene,physics);
 //    particles = addParticles(scene,physics);
     
@@ -51,6 +52,9 @@ function webGLStart(){
             var projectionMat = CubicVR.mat4.perspective(40, 1.0, 0.1, 1000.0);
             particles.draw(modelViewMat,projectionMat,Math.abs(seconds%20-10));
         }
+        if(car){
+            car.evaluate();
+        }
         scene.render();
     });
 
@@ -58,16 +62,17 @@ function webGLStart(){
         var code = (e.keyCode ? e.keyCode : e.which);
         switch(code){
             case 119: //w
-                car.applyForce([-20,0,0],[0,0,0]);
+                car.setEngineForce(20);
+//                car.applyForce([-20,0,0],[0,0,0]);
             break;
             case 97: //a
-                car.applyForce([0,0,-2],[10,0,0]);
+//                car.applyForce([0,0,-2],[10,0,0]);
             break;
             case 115: //s
-                car.applyForce([20,0,0],[0,0,0]);
+//                car.applyForce([20,0,0],[0,0,0]);
             break;
             case 100: //d
-                car.applyForce([0,0,2],[10,0,0]);
+//                car.applyForce([0,0,2],[10,0,0]);
             break;
         }
     });
@@ -198,10 +203,10 @@ function addHeadlights(scene,car){
         method: CubicVR.enums.light.method.DYNAMIC,
         diffuse:[1,1,1],
         specular:[1,1,1],
-        position:[0,2,0],
+        position:[0,-1,0],
         distance:90,
         intensity:1,
-        direction:[0,1,0]
+        direction:[0,-1,0]
     });
     light.setParent(car);
 
@@ -257,4 +262,49 @@ function generateGround(scene,physics){
 //        }
 //    });
 //    physics.bind(rigidFloor);
+}
+
+function addCarAndPhysics(scene,physics){
+    var colladaScene = CubicVR.loadCollada("resources/sportscar/car1.dae","resources/sportscar");
+
+    var carMesh = colladaScene.getSceneObject("car").obj;
+
+    // SceneObject container for the mesh
+    var carObject = new CubicVR.SceneObject({
+        mesh: carMesh,
+        scale:[2,2,2],
+        position: [75,15,0],
+        rotation: [90,90,0]
+    });
+
+    scene.camera.position = [0,4,-3];
+    scene.camera.rotation = [-120,0,0];
+    scene.camera.setParent(carObject);
+
+    // Add SceneObject containing the mesh to the scene
+    scene.bindSceneObject(carObject);
+
+    var vehicle = new CubicVR.Vehicle(physics,carMesh,carMesh);
+    var wheel = new CubicVR.VehicleWheel();
+    wheel.setDriving(true);
+    vehicle.addWheel(0,wheel);
+//    vehicle.addWheel(1,wheel);
+//    vehicle.addWheel(2,wheel);
+//    vehicle.addWheel(3,wheel);
+    vehicle.initBody();
+
+
+//    var rigidBox = new CubicVR.RigidBody(carObject, {
+//        type: CubicVR.enums.physics.body.DYNAMIC,
+//        collision: {
+//            type: CubicVR.enums.collision.shape.BOX,
+//            size: carObject.scale
+//        }
+//    });
+//    rigidBox.setMass(20);
+//    physics.bind(vehicle);
+
+    addHeadlights(scene,carObject);
+    return vehicle;
+    
 }
